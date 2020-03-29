@@ -5,10 +5,12 @@ const Schema = mongoose.Schema
 const UserSchema = new Schema({
   githubHandle: {
     type: String,
-    required: 'GitHub required'
+    required: 'GitHub handle required',
+    unique: true
   },
   score: {
     type: Number,
+    required: 'Score required',
     default: 0
   }
 })

@@ -3,9 +3,15 @@ import userSchema from '../models/userModel.js'
 
 const User = mongoose.model('User', userSchema);
 
-export const addUser = (req, res) => {
-  const newUser = new User(req.body);
-  newUser.save((error, user) => {
+export const addUser = async (req, res) => {
+  let user = await User.findOne({ githubHandle: req.body.githubHandle });
+  if (!user) {
+    user = new User(req.body);
+  }
+  else {
+    user.score += req.body.score;
+  }
+  user.save((error, user) => {
     if (error) {
       res.json(error);
     }
@@ -20,4 +26,20 @@ export const getUsers = (req, res) => {
     }
     res.json(users);
   });
+}
+
+export const getTopUsers = async (req, res) => {
+  User.find({}, null, {
+    skip: 0,
+    limit: 10,
+    sort: {
+      score: -1
+    }
+  },
+    (error, topUsers) => {
+      if (error) {
+        res.json(error);
+      }
+      res.json(topUsers);
+    });
 }
