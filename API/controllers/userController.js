@@ -1,22 +1,32 @@
 import mongoose from 'mongoose'
 import userSchema from '../models/userModel.js'
+import * as githubHelper from '../utils/githubHelper.js'
 
 const User = mongoose.model('User', userSchema);
 
 export const addUser = async (req, res) => {
-  let user = await User.findOne({ githubHandle: req.body.githubHandle });
-  if (!user) {
-    user = new User(req.body);
-  }
-  else {
-    user.score += req.body.score;
-  }
-  user.save((error, user) => {
-    if (error) {
-      res.json(error);
+  try {
+    let user = await User.findOne({ githubHandle: req.body.githubHandle });
+
+    if (!user) {
+      const githubUser = await githubHelper.findByHandle(req.body.githubHandle);
+      user = new User({ name: githubUser.name, ...req.body });
     }
-    res.json(user);
-  });
+    else {
+      user.score += req.body.score;
+    }
+
+    user.save((error, user) => {
+      if (error) {
+        res.json(error);
+      }
+      res.json(user);
+    });
+  }
+  catch (error) {
+    console.log(error);
+    res.status(404).json({ error: error.ToString });
+  }
 }
 
 export const getUsers = (req, res) => {

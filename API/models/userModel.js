@@ -10,8 +10,11 @@ const UserSchema = new Schema({
   },
   score: {
     type: Number,
-    required: 'Score required',
-    default: 0
+    required: 'Score required'
+  },
+  name: {
+    type: String,
+    required: true
   }
 })
 
